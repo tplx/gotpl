@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GoTpl 模板引擎示例</title>
+  <style>
+    body {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+      color: #212529;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .description {
+      color: #6c757d;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: 1px solid #0d6efd;
+      border-radius: 6px;
+      background: #0d6efd;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0b5ed7;
+    }
+
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .product {
+      padding: 16px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+    }
+
+    .product h3 {
+      margin: 0 0 8px;
+    }
+
+    .price {
+      color: #dc3545;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .stock {
+      color: #198754;
+    }
+
+    .out-of-stock {
+      color: #dc3545;
+    }
+
+    .empty {
+      padding: 24px;
+      border: 1px dashed #adb5bd;
+      border-radius: 8px;
+      color: #6c757d;
+      text-align: center;
+    }
+
+    pre {
+      overflow-x: auto;
+      padding: 16px;
+      border-radius: 8px;
+      background: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+  <h1>GoTpl 模板引擎</h1>
+  <p class="description">
+    使用 TypeScript 实现的 Go Template 风格模板引擎示例。
+  </p>
+
+  <div class="toolbar">
+    <button id="render-button" type="button">渲染模板</button>
+    <button id="empty-button" type="button">测试空数据</button>
+  </div>
+
+  <div id="app">
+    <p class="description">点击按钮渲染模板。</p>
+  </div>
+
+  <!-- 模板定义：这里的模板指令使用 HTML 实体保存 -->
+  <template id="product-template">
+    <section>
+      <h2>{%.Title%}</h2>
+      <p>共 {% len .Items %} 件商品</p>
+
+      {% if .Items %}
+      <div class="product-list">
+        {% range .Items %}
+        <article class="product">
+          <h3>{%.Name%}</h3>
+          <p class="price">￥{%.Price%}</p>
+
+          {% if .Stock %}
+          <p class="stock">有货：{%.Stock%} 件</p>
+          {% else %}
+          <p class="out-of-stock">暂时缺货</p>
+          {% end %}
+        </article>
+        {% end %}
+      </div>
+      {% else %}
+      <div class="empty">暂无商品</div>
+      {% end %}
+    </section>
+  </template>
+
+  <script src="../dist/gotpl.browser.min.js"></script>
+ <script>
+    const data = {
+      Title: "精选商品",
+      Items: [
+        { Name: "无线键盘", Price: 129, Stock: 18 },
+        { Name: "蓝牙鼠标", Price: 69, Stock: 25 },
+        { Name: "USB 扩展坞", Price: 199, Stock: 0 }
+      ]
+    };
+
+    const emptyData = {
+      Title: "精选商品",
+      Items: []
+    };
+
+    function render(data) {
+      const templateElement = document.getElementById("product-template");
+      const appElement = document.getElementById("app");
+
+      try {
+
+         const engine = new GoTpl.New();
+
+        // 将 HTML 实体还原为模板引擎的指令语法。
+        const source = templateElement.innerHTML;
+
+        const html = engine.render(source, data);
+        appElement.innerHTML = html;
+      } catch (error) {
+        console.error("模板渲染失败：", error);
+        appElement.innerHTML =
+          '<pre class="error"></pre>';
+
+        appElement.querySelector(".error").textContent =
+          error instanceof Error ? error.message : String(error);
+      }
+    }
+
+    document.getElementById("render-button").addEventListener("click", () => {
+      render(data);
+    });
+
+    document.getElementById("empty-button").addEventListener("click", () => {
+      render(emptyData);
+    });
+
+    render(data);
+  </script>
+</body>
+</html>

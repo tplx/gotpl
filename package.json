@@ -1,0 +1,35 @@
+{
+  "name": "gotpl",
+  "version": "0.1.0",
+  "description": "A lightweight Go Template-style engine written in TypeScript",
+  "type": "module",
+  "module": "./dist/template.js",
+  "types": "./dist/template.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/template.d.ts",
+      "import": "./dist/template.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "bun run build-esm && bun run build-browser",
+    "build-esm": "bun build ./src/template.ts --outfile ./dist/gotpl.esm.min.js --target browser --minify",
+    "build-browser": "esbuild ./src/template.ts --bundle --minify --format=iife --global-name=GoTpl --outfile=./dist/gotpl.browser.min.js",
+    "clean": "bun -e \"await Bun.$`rm -rf dist`\"",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3"
+  },
+  "keywords": [
+    "template",
+    "go-template",
+    "typescript",
+    "html"
+  ],
+  "license": "MIT"
+}

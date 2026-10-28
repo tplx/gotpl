@@ -1,1 +1,1 @@
-# gotpl
+# Go-style template engine for browsers
